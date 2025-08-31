@@ -25,10 +25,6 @@ class CalculationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Initialize the lists with data from the main TaskController
-    // We create a new list to avoid modifying the original data directly
-    // personList = List<PersonModel>.from(_taskController.personList).obs;
-    // foodList = List<FoodModel>.from(_taskController.foodList).obs;
   }
 
   // --- GETTERS (COMPUTED PROPERTIES) ---
