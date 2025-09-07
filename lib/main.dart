@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mehmani/bindings/binding.dart';
+import 'package:mehmani/const.dart';
 import 'package:mehmani/controllers/calculation_controller.dart';
 import 'package:mehmani/routes/routes.dart';
 import 'package:mehmani/screen/models/food_model.dart';
@@ -9,6 +10,7 @@ import 'package:mehmani/screen/models/person_model.dart';
 // import 'controllers/task_controller.dart';
 
 void main(List<String> args) async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(PersonModelAdapter());
   Hive.registerAdapter(FoodModelAdapter());
@@ -52,100 +54,6 @@ class MyApp extends StatelessWidget {
           seedColor: const Color(0xFF6750A4), // Material 3 primary color
           brightness: Brightness.light,
         ),
-        // Material 3 Typography
-        textTheme: const TextTheme(
-          displayLarge: TextStyle(
-            fontSize: 57,
-            fontWeight: FontWeight.w400,
-            letterSpacing: -0.25,
-            height: 1.12,
-          ),
-          displayMedium: TextStyle(
-            fontSize: 45,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0,
-            height: 1.16,
-          ),
-          displaySmall: TextStyle(
-            fontSize: 36,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0,
-            height: 1.22,
-          ),
-          headlineLarge: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0,
-            height: 1.25,
-          ),
-          headlineMedium: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0,
-            height: 1.29,
-          ),
-          headlineSmall: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0,
-            height: 1.33,
-          ),
-          titleLarge: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0,
-            height: 1.27,
-          ),
-          titleMedium: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.15,
-            height: 1.5,
-          ),
-          titleSmall: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.1,
-            height: 1.43,
-          ),
-          bodyLarge: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0.5,
-            height: 1.5,
-          ),
-          bodyMedium: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0.25,
-            height: 1.43,
-          ),
-          bodySmall: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0.4,
-            height: 1.33,
-          ),
-          labelLarge: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.1,
-            height: 1.43,
-          ),
-          labelMedium: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.5,
-            height: 1.33,
-          ),
-          labelSmall: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.5,
-            height: 1.45,
-          ),
-        ),
-        // Material 3 Component Themes
         appBarTheme: const AppBarTheme(
           centerTitle: true,
           elevation: 0,
@@ -153,7 +61,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: Colors.transparent,
           foregroundColor: Color(0xFF1C1B1F),
           titleTextStyle: TextStyle(
-            fontSize: 22,
+            fontSize: 16,
             fontWeight: FontWeight.w400,
             color: Color(0xFF1C1B1F),
           ),
@@ -167,9 +75,10 @@ class MyApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            elevation: 1,
+            elevation: 2,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
+              side: BorderSide(color: MyConst.backgroundColor200),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
           ),
@@ -194,7 +103,7 @@ class MyApp extends StatelessWidget {
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: const Color(0xFFF3F3F3),
+          fillColor: MyConst.backgroundColor200,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -207,8 +116,10 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFF6750A4), width: 2),
           ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
         ),
       ),
     );

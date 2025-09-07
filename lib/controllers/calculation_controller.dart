@@ -1,45 +1,127 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mehmani/controllers/task_controller.dart';
-import 'package:mehmani/screen/calculat/calculator.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mehmani/screen/models/food_model.dart';
 import 'package:mehmani/screen/models/person_model.dart';
 
+/// کنترلر محاسبات برای مدیریت مراحل انتخاب افراد و غذاها
 class CalculationController extends GetxController {
-  // --- DEPENDENCIES ---
-  // A single instance of TaskController to get initial data
-  // final TaskController _taskController = Get.find<TaskController>();
-
-  // --- UI CONTROLLERS ---
-  // PageController for smooth step transitions between pages
+  /// کنترلر صفحه برای انتقال بین مراحل مختلف
   final PageController pageController = PageController();
 
   // --- STATE VARIABLES (REACTIVE) ---
-  // .obs makes the variable observable, so UI widgets can react to its changes
+  /// مرحله فعلی در فرآیند انتخاب (0: افراد، 1: غذاها، 2: خلاصه)
   var currentStep = 0.obs;
 
-  // These lists hold the state of our selections
+  /// لیست افراد قابل انتخاب با قابلیت انتخاب چندتایی
   RxList<PersonModel> personList = <PersonModel>[].obs;
+
+  /// لیست غذاهای قابل انتخاب با قابلیت انتخاب چندتایی
   late RxList<FoodModel> foodList = <FoodModel>[].obs;
+
+  /// ذخیره آخرین مرحله‌ای که کاربر در آن بود
+  var lastVisitedStep = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
+    // بارگذاری داده‌ها از Hive در زمان راه‌اندازی کنترلر
+    _loadDataFromHive();
+    // تنظیم listener برای ذخیره آخرین مرحله
+    pageController.addListener(_onPageChanged);
+
+    // اگر مرحله خاصی باید بازیابی شود، آن را تنظیم کن
+    if (Get.arguments != null && Get.arguments['restoreStep'] != null) {
+      int stepToRestore = Get.arguments['restoreStep'];
+      if (stepToRestore >= 0 && stepToRestore <= 2) {
+        Future.delayed(Duration(milliseconds: 100), () {
+          setCurrentStep(stepToRestore);
+        });
+      }
+    }
+  }
+
+  /// بارگذاری داده‌ها از Hive
+  void _loadDataFromHive() {
+    try {
+      // بارگذاری افراد
+      Box<PersonModel> personBox = Hive.box<PersonModel>('personBox');
+      personList.clear();
+      for (var person in personBox.values) {
+        personList.add(person);
+      }
+
+      // بارگذاری غذاها
+      Box<FoodModel> foodBox = Hive.box<FoodModel>('foodBox');
+      foodList.clear();
+      for (var food in foodBox.values) {
+        foodList.add(food);
+      }
+    } catch (e) {
+      debugPrint('Error loading data from Hive: $e');
+    }
+  }
+
+  /// بارگذاری مجدد داده‌ها از Hive
+  void refreshData() {
+    _loadDataFromHive();
+  }
+
+  /// ذخیره آخرین مرحله‌ای که کاربر در آن بود
+  void _onPageChanged() {
+    if (pageController.page != null) {
+      lastVisitedStep.value = pageController.page!.round();
+      currentStep.value = lastVisitedStep.value;
+    }
+  }
+
+  /// بازگشت به آخرین مرحله‌ای که کاربر در آن بود
+  void restoreLastVisitedStep() {
+    if (lastVisitedStep.value != currentStep.value) {
+      currentStep.value = lastVisitedStep.value;
+      pageController.animateToPage(
+        lastVisitedStep.value,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  /// تنظیم مرحله فعلی بدون انیمیشن (برای بازگشت از صفحات دیگر)
+  void setCurrentStep(int step) {
+    if (step >= 0 && step <= 2) {
+      currentStep.value = step;
+      lastVisitedStep.value = step;
+      pageController.jumpToPage(step);
+    }
+  }
+
+  /// تنظیم مرحله با انیمیشن
+  void setCurrentStepWithAnimation(int step) {
+    if (step >= 0 && step <= 2) {
+      currentStep.value = step;
+      lastVisitedStep.value = step;
+      pageController.animateToPage(
+        step,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   // --- GETTERS (COMPUTED PROPERTIES) ---
-  // Getters provide calculated values based on the state. They are efficient
-  // because they are recalculated automatically only when a dependency changes.
-
+  /// تعداد افراد انتخاب شده
   int get selectedPeopleCount => personList.where((p) => p.isChecked).length;
 
+  /// مجموع تعداد مهمانان از تمام خانواده‌های انتخاب شده
   int get totalGuests => personList
       .where((p) => p.isChecked)
       .fold(0, (sum, person) => sum + int.parse(person.conter));
 
+  /// تعداد غذاهای انتخاب شده
   int get selectedFoodsCount => foodList.where((f) => f.isChecked).length;
 
-  // This getter contains the logic to enable/disable the "Next" button
+  /// بررسی فعال بودن دکمه بعدی بر اساس مرحله فعلی
   bool get isNextButtonEnabled {
     if (currentStep.value == 0) {
       return selectedPeopleCount > 0; // Must select at least one family
@@ -51,8 +133,7 @@ class CalculationController extends GetxController {
   }
 
   // --- METHODS (USER ACTIONS) ---
-  // These methods are called from the UI to change the state.
-
+  /// انتقال به مرحله بعدی با انیمیشن
   void goToNextStep() {
     if (currentStep.value < 2) {
       currentStep.value++;
@@ -62,12 +143,10 @@ class CalculationController extends GetxController {
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
       );
-    } else {
-      // Final step: Navigate to the Calculator screen
-      Get.to(() => Calculator());
     }
   }
 
+  /// بازگشت به مرحله قبلی با انیمیشن
   void goToPreviousStep() {
     if (currentStep.value > 0) {
       currentStep.value--;
@@ -80,7 +159,7 @@ class CalculationController extends GetxController {
     }
   }
 
-  // Toggles the 'isChecked' status of a single item
+  /// تغییر وضعیت انتخاب یک آیتم (انتخاب یا عدم انتخاب)
   void toggleSelection(int index, bool isPersonList) {
     if (isPersonList) {
       personList[index].isChecked = !personList[index].isChecked;
@@ -91,7 +170,7 @@ class CalculationController extends GetxController {
     }
   }
 
-  // Selects or deselects all items in a list
+  /// انتخاب یا عدم انتخاب تمام آیتم‌های یک لیست
   void toggleAll(bool select, bool isPersonList) {
     if (isPersonList) {
       for (var person in personList) {
@@ -106,9 +185,10 @@ class CalculationController extends GetxController {
     }
   }
 
-  // Clean up the PageController when the controller is removed from memory
+  /// پاکسازی کنترلر صفحه هنگام حذف کنترلر از حافظه
   @override
   void onClose() {
+    pageController.removeListener(_onPageChanged);
     pageController.dispose();
     super.onClose();
   }

@@ -52,7 +52,7 @@ class _PersonScreenState extends State<PersonScreen> {
                           children: [
                             Text(
                               'خانوار ثبت شده',
-                              style: MyConst.titleLarge(screenH).copyWith(
+                              style: MyConst.bodyLarge(screenH).copyWith(
                                 color: MyConst.onPrimaryContainer,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -60,9 +60,9 @@ class _PersonScreenState extends State<PersonScreen> {
                             SizedBox(height: 4),
                             Obx(() => Text(
                                   '${Get.find<CalculationController>().personList.length} خانواده ثبت شده',
-                                  style: MyConst.bodyLarge(screenH).copyWith(
+                                  style: MyConst.labelLarge(screenH).copyWith(
                                     color: MyConst.onPrimaryContainer
-                                        .withOpacity(0.8),
+                                        .withValues(alpha: 0.8),
                                   ),
                                 )),
                           ],
@@ -186,8 +186,8 @@ class _PersonScreenState extends State<PersonScreen> {
           SizedBox(height: 8),
           Text(
             'برای شروع، خانواده جدیدی اضافه کنید',
-            style: MyConst.bodyLarge(screenH).copyWith(
-              color: MyConst.onSurfaceVariant.withOpacity(0.7),
+            style: MyConst.labelLarge(screenH).copyWith(
+              color: MyConst.onSurfaceVariant.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -238,7 +238,7 @@ class _PersonScreenState extends State<PersonScreen> {
             ),
           ),
           actions: [
-            TextButton(
+            OutlinedButton(
               child: Text(
                 'خیر',
                 style: MyConst.labelLarge(screenH).copyWith(

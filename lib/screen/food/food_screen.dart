@@ -10,7 +10,6 @@ import 'package:mehmani/screen/models/food_model.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
 
 import '../../const.dart';
-// import '../../controllers/task_controller.dart';
 
 class FoodScreen extends StatefulWidget {
   const FoodScreen({Key? key}) : super(key: key);
@@ -40,38 +39,7 @@ class _FoodScreenState extends State<FoodScreen> {
                     color: MyConst.primaryContainer,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.restaurant_rounded,
-                        color: MyConst.onPrimaryContainer,
-                        size: 32,
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'اطلاعات غذایی ثبت شده',
-                              style: MyConst.titleLarge(screenH).copyWith(
-                                color: MyConst.onPrimaryContainer,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Obx(() => Text(
-                                  '${getFood.length} غذا ثبت شده',
-                                  style: MyConst.bodyLarge(screenH).copyWith(
-                                    color: MyConst.onPrimaryContainer
-                                        .withOpacity(0.8),
-                                  ),
-                                )),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: _appBar(getFood),
                 ),
 
                 SizedBox(height: 24),
@@ -81,82 +49,7 @@ class _FoodScreenState extends State<FoodScreen> {
                   child: Obx(
                     () => getFood.isEmpty
                         ? _buildEmptyState()
-                        : ListView.builder(
-                            itemCount: getFood.length,
-                            itemBuilder: (context, index) {
-                              return Card(
-                                margin: EdgeInsets.only(bottom: 12),
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor: MyConst.secondaryContainer,
-                                    child: Icon(
-                                      Icons.restaurant_rounded,
-                                      color: MyConst.onSecondaryContainer,
-                                      size: 24,
-                                    ),
-                                  ),
-                                  title: Text(
-                                    '${getFood[index].title} ${getFood[index].amount} ${getFood[index].vahed}',
-                                    style: MyConst.bodyLarge(screenH).copyWith(
-                                      color: MyConst.onSurface,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    textDirection: TextDirection.rtl,
-                                  ),
-                                  subtitle: Text(
-                                    '${getFood[index].fi.seRagham()} تومان',
-                                    style: MyConst.bodyLarge(screenH).copyWith(
-                                      color: MyConst.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          AddFoodScreen.isEdit = true;
-                                          AddFoodScreen.id = getFood[index].id;
-                                          AddFoodScreen.foodNameController
-                                              .text = getFood[index].title;
-                                          AddFoodScreen.numberController.text =
-                                              getFood[index].amount;
-                                          AddFoodScreen.dropdownValue =
-                                              getFood[index].vahed;
-                                          AddFoodScreen.periceController.text =
-                                              getFood[index].fi;
-
-                                          Navigator.push(context,
-                                              MaterialPageRoute(
-                                                  builder: ((context) {
-                                            return AddFoodScreen();
-                                          })));
-                                        },
-                                        icon: Icon(
-                                          Icons.edit_rounded,
-                                          color: MyConst.primary,
-                                        ),
-                                        tooltip: 'ویرایش',
-                                      ),
-                                      IconButton(
-                                        onPressed: () {
-                                          _showDeleteDialog(
-                                              getFood[index], index);
-                                        },
-                                        icon: Icon(
-                                          Icons.delete_rounded,
-                                          color: MyConst.error,
-                                        ),
-                                        tooltip: 'حذف',
-                                      ),
-                                    ],
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+                        : _lisstBuilder(getFood),
                   ),
                 ),
               ],
@@ -164,6 +57,114 @@ class _FoodScreenState extends State<FoodScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  ListView _lisstBuilder(RxList<FoodModel> getFood) {
+    return ListView.builder(
+      itemCount: getFood.length,
+      itemBuilder: (context, index) {
+        return Card(
+          margin: EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: MyConst.secondaryContainer,
+              child: Icon(
+                Icons.restaurant_rounded,
+                color: MyConst.onSecondaryContainer,
+                size: 24,
+              ),
+            ),
+            title: Text(
+              '${getFood[index].title} ${getFood[index].amount} ${getFood[index].vahed}',
+              style: MyConst.bodyLarge(screenH).copyWith(
+                color: MyConst.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
+              textDirection: TextDirection.rtl,
+            ),
+            subtitle: Text(
+              '${getFood[index].fi.seRagham()} تومان',
+              style: MyConst.bodyLarge(screenH).copyWith(
+                color: MyConst.onSurfaceVariant,
+              ),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    AddFoodScreen.isEdit = true;
+                    AddFoodScreen.id = getFood[index].id;
+                    AddFoodScreen.foodNameController.text =
+                        getFood[index].title;
+                    AddFoodScreen.numberController.text = getFood[index].amount;
+                    AddFoodScreen.dropdownValue = getFood[index].vahed;
+                    AddFoodScreen.periceController.text = getFood[index].fi;
+
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: ((context) {
+                      return AddFoodScreen();
+                    })));
+                  },
+                  icon: Icon(
+                    Icons.edit_rounded,
+                    color: MyConst.primary,
+                  ),
+                  tooltip: 'ویرایش',
+                ),
+                IconButton(
+                  onPressed: () {
+                    _showDeleteDialog(getFood[index], index);
+                  },
+                  icon: Icon(
+                    Icons.delete_rounded,
+                    color: MyConst.error,
+                  ),
+                  tooltip: 'حذف',
+                ),
+              ],
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Row _appBar(RxList<FoodModel> getFood) {
+    return Row(
+      children: [
+        Icon(
+          Icons.restaurant_rounded,
+          color: MyConst.onPrimaryContainer,
+          size: 32,
+        ),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'اطلاعات غذایی ثبت شده',
+                style: MyConst.bodyLarge(screenH).copyWith(
+                  color: MyConst.onPrimaryContainer,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 4),
+              Obx(() => Text(
+                    '${getFood.length} غذا ثبت شده',
+                    style: MyConst.labelLarge(screenH).copyWith(
+                      color: MyConst.onPrimaryContainer.withValues(alpha: 0.8),
+                    ),
+                  )),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -189,8 +190,8 @@ class _FoodScreenState extends State<FoodScreen> {
           SizedBox(height: 8),
           Text(
             'برای شروع، غذا جدیدی اضافه کنید',
-            style: MyConst.bodyLarge(screenH).copyWith(
-              color: MyConst.onSurfaceVariant.withOpacity(0.7),
+            style: MyConst.labelLarge(screenH).copyWith(
+              color: MyConst.onSurfaceVariant.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),

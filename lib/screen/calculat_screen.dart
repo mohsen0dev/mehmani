@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mehmani/abzar/extension.dart';
 import 'package:mehmani/const.dart';
 import 'package:mehmani/controllers/calculation_controller.dart';
+import 'package:mehmani/screen/calculat/calculator.dart';
 
 // The screen is now a StatelessWidget because all state is managed by CalculationController.
 class CalculatScreen extends StatelessWidget {
@@ -21,10 +23,10 @@ class CalculatScreen extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              // Header section (Stepper and titles)
+              // هدر استپ انتخاب خانواده و غذا و نتیجه
               _buildHeader(screenH),
 
-              // PageView for the main content, allowing swipe gestures
+              // پیج ویو اطلاعات
               Expanded(
                 child: PageView(
                   controller: controller.pageController,
@@ -39,7 +41,7 @@ class CalculatScreen extends StatelessWidget {
                 ),
               ),
 
-              // Bottom navigation buttons (Previous/Next)
+              // دکمه های حرکت بین پیج ویو
               _buildNavigationButtons(),
             ],
           ),
@@ -62,7 +64,8 @@ class CalculatScreen extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                // color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -105,7 +108,7 @@ class CalculatScreen extends StatelessWidget {
                   _getStepTitle(controller.currentStep.value),
                   // Using ValueKey ensures AnimatedSwitcher knows the widget has changed
                   key: ValueKey<int>(controller.currentStep.value),
-                  style: MyConst.titleLarge(screenH).copyWith(
+                  style: MyConst.bodyLarge(screenH).copyWith(
                     color: MyConst.onPrimaryContainer,
                     fontWeight: FontWeight.bold,
                   ),
@@ -114,8 +117,8 @@ class CalculatScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 _getStepDescription(controller.currentStep.value),
-                style: MyConst.bodyLarge(screenH).copyWith(
-                  color: MyConst.onPrimaryContainer.withOpacity(0.8),
+                style: MyConst.labelLarge(screenH).copyWith(
+                  color: MyConst.onPrimaryContainer.withValues(alpha: 0.8),
                 ),
               ),
             ],
@@ -176,7 +179,7 @@ class CalculatScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                           side: BorderSide(
                             color: item.isChecked
-                                ? MyConst.primary.withOpacity(0.8)
+                                ? MyConst.primary.withValues(alpha: 0.8)
                                 : Colors.grey.shade300,
                             width: item.isChecked ? 1.5 : 1,
                           ),
@@ -187,7 +190,8 @@ class CalculatScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                           child: ListTile(
                             contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
+                              horizontal: 6,
+                            ),
                             leading: IgnorePointer(
                               child: Checkbox(
                                 value: item.isChecked,
@@ -200,10 +204,14 @@ class CalculatScreen extends StatelessWidget {
                             ),
                             title: Text(item.title,
                                 style: TextStyle(
+                                    fontSize: 14,
                                     fontWeight: item.isChecked
                                         ? FontWeight.bold
                                         : FontWeight.normal)),
                             subtitle: Text(
+                              style: TextStyle(
+                                fontSize: 13,
+                              ),
                               isPersonList
                                   ? '${(item).conter} نفر'
                                   : '${(item).amount} ${(item).vahed}',
@@ -211,7 +219,7 @@ class CalculatScreen extends StatelessWidget {
                             trailing: isPersonList
                                 ? null
                                 : Text(
-                                    '${(item).fi} تومان',
+                                    '${(item).fi.toString().to3ragham()} تومان',
                                     style: TextStyle(
                                         color: MyConst.primary,
                                         fontWeight: FontWeight.w600,
@@ -249,24 +257,32 @@ class CalculatScreen extends StatelessWidget {
                   label: 'غذاهای انتخاب شده',
                   value: '${controller.selectedFoodsCount} نوع غذا',
                   screenH: screenH),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: MyConst.tertiaryContainer.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.check_circle_outline_rounded,
-                        color: MyConst.onTertiaryContainer),
-                    const SizedBox(width: 12),
-                    Text('آماده برای محاسبه نهایی',
-                        style: TextStyle(
-                            color: MyConst.onTertiaryContainer,
-                            fontWeight: FontWeight.w500)),
-                  ],
+              const SizedBox(height: 20),
+              SizedBox(
+                width: 200,
+                child: FilledButton.icon(
+                  iconAlignment: IconAlignment.end,
+                  onPressed: () {
+                    Get.to(() => Calculator());
+                  },
+                  icon: Icon(
+                    Icons.calculate_rounded,
+                    size: 28,
+                  ),
+                  label: Text(
+                    'محاسبه کن',
+                    style: MyConst.style16_18(screenH),
+                  ),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: MyConst.primary,
+                    foregroundColor: MyConst.onPrimary,
+                    // Style for the disabled state
+                    disabledBackgroundColor: Colors.grey.shade300,
+                    disabledForegroundColor: Colors.grey.shade500,
+                  ),
                 ),
               ),
               const Spacer(),
@@ -295,30 +311,32 @@ class CalculatScreen extends StatelessWidget {
                   ),
                 ),
               if (controller.currentStep.value > 0) const SizedBox(width: 12),
-              Expanded(
-                child: FilledButton.icon(
-                  // Button is disabled if isNextButtonEnabled is false
-                  onPressed: controller.isNextButtonEnabled
-                      ? controller.goToNextStep
-                      : null,
-                  icon: Icon(controller.currentStep.value == 2
-                      ? Icons.calculate_rounded
-                      : Icons.arrow_forward_rounded),
-                  label: Text(controller.currentStep.value == 2
-                      ? 'محاسبه کن'
-                      : 'مرحله بعد'),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    backgroundColor: MyConst.primary,
-                    foregroundColor: MyConst.onPrimary,
-                    // Style for the disabled state
-                    disabledBackgroundColor: Colors.grey.shade300,
-                    disabledForegroundColor: Colors.grey.shade500,
-                  ),
-                ),
-              ),
+              controller.currentStep.value == 2
+                  ? SizedBox()
+                  : Expanded(
+                      child: FilledButton.icon(
+                        // Button is disabled if isNextButtonEnabled is false
+                        onPressed: controller.isNextButtonEnabled
+                            ? controller.goToNextStep
+                            : null,
+                        icon: Icon(controller.currentStep.value == 2
+                            ? null
+                            : Icons.arrow_forward_rounded),
+                        label: Text(controller.currentStep.value == 2
+                            ? 'محاسبه کن'
+                            : 'مرحله بعد'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          backgroundColor: MyConst.primary,
+                          foregroundColor: MyConst.onPrimary,
+                          // Style for the disabled state
+                          disabledBackgroundColor: Colors.grey.shade300,
+                          disabledForegroundColor: Colors.grey.shade500,
+                        ),
+                      ),
+                    ),
             ],
           ),
         ));
@@ -336,14 +354,14 @@ class CalculatScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: isActive
                 ? MyConst.onPrimaryContainer
-                : MyConst.onPrimaryContainer.withOpacity(0.3),
+                : MyConst.onPrimaryContainer.withValues(alpha: 0.3),
             shape: BoxShape.circle,
           ),
           child: Icon(
             _getStepIcon(step),
             color: isActive
                 ? MyConst.primaryContainer
-                : MyConst.onPrimaryContainer.withOpacity(0.5),
+                : MyConst.onPrimaryContainer.withValues(alpha: 0.5),
             size: 18,
           ),
         ),
@@ -353,7 +371,7 @@ class CalculatScreen extends StatelessWidget {
           style: TextStyle(
             color: isActive
                 ? MyConst.onPrimaryContainer
-                : MyConst.onPrimaryContainer.withOpacity(0.7),
+                : MyConst.onPrimaryContainer.withValues(alpha: 0.7),
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -369,7 +387,7 @@ class CalculatScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: isActive
             ? MyConst.onPrimaryContainer
-            : MyConst.onPrimaryContainer.withOpacity(0.3),
+            : MyConst.onPrimaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(1),
       ),
     );
@@ -383,31 +401,32 @@ class CalculatScreen extends StatelessWidget {
       String? subValue,
       required double screenH}) {
     return Card(
-      elevation: 1,
+      elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
               children: [
                 Text(label,
                     style: MyConst.bodyLarge(screenH)
                         .copyWith(color: MyConst.onSurfaceVariant)),
                 Text(value,
-                    style: MyConst.titleLarge(screenH).copyWith(
+                    style: MyConst.bodyLarge(screenH).copyWith(
                         fontWeight: FontWeight.bold, color: MyConst.onSurface)),
                 if (subValue != null) ...[
-                  const SizedBox(height: 2),
                   Text(subValue,
-                      style: MyConst.bodyLarge(screenH)
+                      style: MyConst.labelLarge(screenH)
                           .copyWith(color: MyConst.onSurfaceVariant)),
                 ],
               ],
-            )
+            ),
+            const SizedBox(height: 8),
+            Icon(icon, color: color, size: 32),
           ],
         ),
       ),
@@ -424,15 +443,15 @@ class CalculatScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon,
-              size: 64, color: MyConst.onSurfaceVariant.withOpacity(0.5)),
+              size: 64, color: MyConst.onSurfaceVariant.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Text(title,
-              style: MyConst.titleLarge(screenH).copyWith(
-                  color: MyConst.onSurface, fontWeight: FontWeight.w600)),
+              style: MyConst.bodyLarge(screenH).copyWith(
+                  color: MyConst.onSurface, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: MyConst.bodyLarge(screenH)
+            style: MyConst.labelLarge(screenH)
                 .copyWith(color: MyConst.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),

@@ -157,7 +157,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                             },
                             validator: (value) {
                               if (value!.isEmpty) {
-                                return 'لطفا نام کالا را وارد کنید';
+                                return 'مقدار کالا را وارد کنید';
                               }
                               return null;
                             },
